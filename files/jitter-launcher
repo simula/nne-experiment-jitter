@@ -13,7 +13,7 @@
 #                       https://www.nntb.no
 # =================================================================
 #
-# Container-based UDPPing Launcher for NorNet Edge
+# Container-based Jitter Launcher for NorNet Edge
 #
 # Copyright (C) 2018-2022 by Thomas Dreibholz
 #
@@ -93,7 +93,7 @@ LOGGING_CONF = {
          'level': 'DEBUG',
          'class': 'logging.handlers.TimedRotatingFileHandler',
          'formatter': 'standard',
-         'filename': LOG_DIRECTORY + '/udpping-launcher.log',
+         'filename': LOG_DIRECTORY + '/jitter-launcher.log',
          'when': 'D'
       },
    },
@@ -165,7 +165,7 @@ while True:
 
       if not measurementID in processes:
          logging.debug('Starting instance ' + str(measurementID) + ' on ' + metadataIF + ' ...')
-         processes[measurementID] = subprocess.Popen([ '/opt/monroe/udpping',
+         processes[measurementID] = subprocess.Popen([ '/opt/monroe/jitter',
                                                        '-i', str(measurementID),
                                                        '-N', str(networkID),
                                                        '-I', metadataIF ])

@@ -44,5 +44,5 @@ RUN echo "export TERM=vt100" >>/root/.bashrc
 
 RUN apt-get clean
 
-ENTRYPOINT [ "dumb-init", "--", "/usr/bin/python3", "/opt/monroe/udpping-launcher" ]
+ENTRYPOINT [ "dumb-init", "--", "/usr/bin/python3", "/opt/monroe/jitter-launcher" ]
 #ENTRYPOINT [ "/sbin/init" ]

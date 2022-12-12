@@ -32,8 +32,8 @@
 # Contact: dreibh@simula.no
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-CONTAINER="udpping"
-CONTAINERTAG="dreibh/udpping"
+CONTAINER="jitter"
+CONTAINERTAG="dreibh/jitter"
 
 TESTNAME="test0"
 WORKDIR="/run/shm/${TESTNAME}"

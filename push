@@ -35,7 +35,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 CONTAINER=`echo "${DIR##*/}" | sed -e "s/^nne-experiment-//g"`
-CONTAINERTAG=dreibh/udpping
+CONTAINERTAG=dreibh/jitter
 
 # docker login
 docker tag ${CONTAINER} ${CONTAINERTAG}

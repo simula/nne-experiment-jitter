@@ -32,8 +32,8 @@
 # Contact: dreibh@simula.no
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-CONTAINER="udpping"
-CONTAINERTAG="dreibh/udpping"
+CONTAINER="jitter"
+CONTAINERTAG="dreibh/jitter"
 
 TESTNAME="test0"
 WORKDIR="/run/shm/${TESTNAME}"
@@ -42,7 +42,7 @@ WORKDIR="/run/shm/${TESTNAME}"
 echo "Prepare:"
 rm -rf $WORKDIR
 mkdir -p $WORKDIR
-echo '{"measurement_id": 99999, "measurement_desc_id": 1, "measurement_desc": "RTT measurement", "network_id": 1, "mcc": "242", "mnc": "01", "container": "dreibh/udpping", "start_time": "2017-05-19 16:22:13", "stop_time": "None"}' >$WORKDIR/config
+echo '{"measurement_id": 99999, "measurement_desc_id": 1, "measurement_desc": "RTT measurement", "network_id": 1, "mcc": "242", "mnc": "01", "container": "dreibh/jitter", "start_time": "2017-05-19 16:22:13", "stop_time": "None"}' >$WORKDIR/config
 mkdir -p $WORKDIR/results
 
 
