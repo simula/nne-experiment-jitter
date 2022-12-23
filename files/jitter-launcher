@@ -165,17 +165,23 @@ while True:
 
       if not measurementID in processes:
          logging.debug('Starting instance ' + str(measurementID) + ' on ' + metadataIF + ' ...')
-         processes[measurementID] = subprocess.Popen([ '/usr/bin/hipercontracer',
+         processes[measurementID] = subprocess.Popen([ '/opt/monroe/hipercontracer',
                                                        '--identifier',               str(measurementID),
+                                                       '--user',                     '0',   # FIXME!
                                                        '--resultsdirectory',         '/monroe/results',
                                                        '--resultstransactionlength', '300',
+                                                       '--iomodule',                 'UDP',
                                                        '--jitter',
+                                                       '--jitterrecordraw',
                                                        '--source',                   '0.0.0.0',
                                                        '--destination',              '128.39.37.70',
                                                        '--jitterinterval',           '60000',
                                                        '--jitterburst',              '16',
                                                        '--jitterpacketsize',         '64'
-                                                     ])
+                                                     ],
+                                                     env = {
+                                                        'LD_LIBRARY_PATH': '/opt/monroe'
+                                                     })
          logging.debug('Started instance ' + str(measurementID) + ' on ' + metadataIF)
 
 
