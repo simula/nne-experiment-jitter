@@ -38,37 +38,37 @@ CONTAINER=`echo "${DIR##*/}" | sed -e "s/^nne-experiment-//g"`
 DOCKERFILE=${CONTAINER}.docker
 
 
-# ------ Build static HiPerConTracer executable -----------------------------
-if [ ! -e hipercontracer ] ; then
-   git clone https://github.com/dreibh/hipercontracer
-   cd hipercontracer
-   git checkout dreibh/udpping
-else
-   cd hipercontracer
-   git pull
-fi
+# # ------ Build static HiPerConTracer executable -----------------------------
+# if [ ! -e hipercontracer ] ; then
+#    git clone https://github.com/dreibh/hipercontracer
+#    cd hipercontracer
+#    git checkout dreibh/udpping
+# else
+#    cd hipercontracer
+#    git pull
+# fi
+#
+# git clean -dfx
+# rm -f CMakeCache.txt && cmake . \
+#    -DSTATIC_BUILD=ON \
+#    -DCMAKE_INSTALL_PREFIX=/usr \
+#    -DENABLE_BACKEND_MARIADB=OFF -DENABLE_BACKEND_POSTGRESQL=OFF -DENABLE_BACKEND_MONGODB=OFF \
+#    -DCMAKE_BUILD_TYPE=DEBUG
+# cd src
+#
+# export MAKEFLAGS=-j`getconf _NPROCESSORS_ONLN 2>/dev/null || true`
+# make hipercontracer
+# cd ../..
+#
+# cp hipercontracer/src/hipercontracer files/
+# cd files
+# mkdir -p hipercontracer.lib
+# ldd hipercontracer  | awk '/=>/ { print $3 }' | grep "libstdc++\|libm" | xargs -n1 -i§ cp § hipercontracer.lib/
+# cd ..
+# # ---------------------------------------------------------------------------
 
-git clean -dfx
-rm -f CMakeCache.txt && cmake . \
-   -DSTATIC_BUILD=ON \
-   -DCMAKE_INSTALL_PREFIX=/usr \
-   -DENABLE_BACKEND_MARIADB=OFF -DENABLE_BACKEND_POSTGRESQL=OFF -DENABLE_BACKEND_MONGODB=OFF \
-   -DCMAKE_BUILD_TYPE=DEBUG
-cd src
 
-export MAKEFLAGS=-j`getconf _NPROCESSORS_ONLN 2>/dev/null || true`
-make hipercontracer
-cd ../..
-
-cp hipercontracer/src/hipercontracer files/
-cd files
-mkdir -p hipercontracer.lib
-ldd hipercontracer  | awk '/=>/ { print $3 }' | grep "libstdc++\|libm" | xargs -n1 -i§ cp § hipercontracer.lib/
-cd ..
-# ---------------------------------------------------------------------------
-
-
-docker pull monroe/base
+# docker pull monroe/base
 docker build --rm=true -f ${DOCKERFILE} -t ${CONTAINER} .
 
 echo "Finished building ${CONTAINER}"

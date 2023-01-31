@@ -165,7 +165,7 @@ while True:
 
       if not measurementID in processes:
          logging.debug('Starting instance ' + str(measurementID) + ' on ' + metadataIF + ' ...')
-         processes[measurementID] = subprocess.Popen([ '/opt/monroe/hipercontracer',
+         processes[measurementID] = subprocess.Popen([ 'hipercontracer',
                                                        '--identifier',               str(measurementID),
                                                        '--user',                     '0',   # FIXME!
                                                        '--resultsdirectory',         '/monroe/results',
