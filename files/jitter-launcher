@@ -167,7 +167,6 @@ while True:
          logging.debug('Starting instance ' + str(measurementID) + ' on ' + metadataIF + ' ...')
          processes[measurementID] = subprocess.Popen([ 'hipercontracer',
                                                        '--identifier',               str(measurementID),
-                                                       '--user',                     '0',   # FIXME!
                                                        '--resultsdirectory',         '/monroe/results',
                                                        '--resultstransactionlength', '300',
                                                        '--iomodule',                 'UDP',
@@ -177,7 +176,11 @@ while True:
                                                        '--destination',              '128.39.37.70',
                                                        '--jitterinterval',           '60000',
                                                        '--jitterburst',              '16',
-                                                       '--jitterpacketsize',         '64'
+                                                       '--jitterpacketsize',         '64',
+                                                       # Logging for debugging purposes (should be commented out):
+                                                       '--logfile',                  '/monroe/results/hipercontracer-%Y%m%dT%H:%M:%S.log',
+                                                       '--loglevel',                 '2',
+                                                       '--logcolor',                 'off'
                                                      ],
                                                      env = {
                                                         'LD_LIBRARY_PATH': '/opt/monroe'
