@@ -160,7 +160,7 @@ while True:
         (metadataIF != None) ):
       if measurementID in processes:
          if processes[measurementID].poll() != None:
-            processes.remove(measurementID)
+            del processes[measurementID]
             sys.stderr.write('WARNING: Instance for measurement ID ' + measurementID + ' has stopped!\n')
 
       if not measurementID in processes:
