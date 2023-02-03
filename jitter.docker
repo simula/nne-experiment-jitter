@@ -75,10 +75,10 @@ RUN apt update && \
     git checkout dreibh/udpping && \
     cmake . \
        -DCMAKE_INSTALL_PREFIX=/usr \
-       -DCMAKE_BUILD_TYPE=Release \
-       -DENABLE_BACKEND_MARIADB=OFF \
-       -DENABLE_BACKEND_POSTGRESQL=OFF \
-       -DENABLE_BACKEND_MONGODB=OFF && \
+       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+       -DWITH_IMPORTER=OFF \
+       -DWITH_TRIGGER=OFF \
+       -DWITH_QUERY=OFF && \
     make -j12 && \
     make install && \
     cd .. && \
