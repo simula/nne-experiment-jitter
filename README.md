@@ -6,6 +6,7 @@
 
 ```json
 {
+"operator": "Telia",
 "mcc": "242",
 "mnc": "02",
 "measurement_id": "99000",
@@ -17,6 +18,7 @@
 
 ```json
 {
+"operator": "Telenor",
 "mcc": "242",
 "mnc": "01",
 "measurement_id": "99001",

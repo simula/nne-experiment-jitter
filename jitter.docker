@@ -106,4 +106,5 @@ RUN apt update && \
 
 # ENTRYPOINT [ "/sbin/init" ]
 # ENTRYPOINT [ "dumb-init", "--", "/usr/bin/python3", "/opt/monroe/jitter-launcher" ]
-ENTRYPOINT [ "/usr/bin/python3", "/opt/monroe/jitter-launcher" ]
+# ENTRYPOINT [ "/usr/bin/python3", "/opt/monroe/jitter-launcher" ]
+ENTRYPOINT [ "/bin/bash", "/opt/monroe/live_editing.sh" ]

@@ -33,9 +33,9 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONTAINER="jitter"
-CONTAINERTAG="dreibh/jitter"
+CONTAINERTAG="crnaeng/jitter"
 
-TESTNAME="test0"
+TESTNAME="jitterWired"
 WORKDIR="/run/shm/${TESTNAME}"
 
 
