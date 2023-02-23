@@ -25,3 +25,15 @@
 "network_id": 1
 }
 ```
+
+### Wired
+
+```json
+{
+"operator": "Wired",
+"mcc": "N/A",
+"mnc": "N/A",
+"measurement_id": "99002",
+"network_id": 6
+}
+```

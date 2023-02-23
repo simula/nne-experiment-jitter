@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # =================================================================
 #          #     #                 #     #
@@ -15,7 +15,7 @@
 #
 # Container-based Jitter Launcher for NorNet Edge
 #
-# Copyright (C) 2018-2023 by Thomas Dreibholz
+# Copyright (C) 2018-2023 by Thomas Dreibholz, Foivos Michelinakis
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,15 +31,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Contact: dreibh@simula.no
+# Contact: foivos@simula.no
 
 
-import json
-import logging
-import logging.config
-import os
-import sys
-import subprocess
-import zmq
+from monroePythonLibraryFoivos import *
 
 
 NODEID_FILE = '/nodeid'
@@ -65,6 +60,7 @@ except:
    sys.exit(1)
 
 try:
+   operator      = configuration['operator']
    mcc           = configuration['mcc']
    mnc           = configuration['mnc']
    measurementID = configuration['measurement_id']
@@ -110,82 +106,48 @@ LOGGING_CONF = {
 logging.config.dictConfig(LOGGING_CONF)
 logging.debug('Starting')
 
+if operator != "Wired":
+   operator_interface = mapMobileOperatorsToInterfacesAndSourceIPs([operator])
+else:
+   try:
+      operator_interface = getWiredInterfaceSourceIP()
+   except Exception as e:
+      sys.stderr.write('Error finding the wired interface with message ' + ':' + str(e) + '\n')
+      sys.exit(1)
 
-# ====== Initialise ZeroMQ metadata stream ==================================
-context = zmq.Context()
-socket = context.socket(zmq.SUB)
-socket.connect('tcp://172.17.0.1:5556')
-socket.setsockopt_string(zmq.SUBSCRIBE, 'MONROE.META.DEVICE.MODEM')
-
+print(operator_interface)
 
 # ====== Start instances ====================================================
 processes = {}
 while True:
-   topic          = None
-   metadata       = None
-   metadataIF     = None
-   metadataMCCMNC = None
-   metadataMCC    = None
-   metadataMNC    = None
-   metadataICCID  = None
+   if measurementID in processes:
+      if processes[measurementID].poll() != None:
+         del processes[measurementID]
+         sys.stderr.write('WARNING: Instance for measurement ID ' + measurementID + ' has stopped!\n')
 
-   # ------ Read metadata ---------------------------------------------------
-   data = socket.recv().decode('utf-8').split(' ', 1)
-   try:
-      topic    = data[0]
-      metadata = json.loads(data[1])
-   except Exception as e:
-      sys.stderr.write('WARNING: Cannot read metadata: ' + str(e) + '\n')
-
-   # ------ Extract ICCID and InterfaceName ---------------------------------
-   if ((topic != None) and (metadata != None)):
-      if (topic.startswith('MONROE.META.DEVICE.MODEM') and topic.endswith('.UPDATE')):
-         try:
-            metadataIF     = metadata['InterfaceName']
-            metadataMCCMNC = str(metadata['IMSIMCCMNC'])
-            metadataMCC    = metadataMCCMNC[0:3]
-            metadataMNC    = metadataMCCMNC[3:]
-            metadataICCID  = str(metadata['ICCID'])
-         except Exception as e:
-            logging.warning('WARNING: Cannot read MONROE.META.DEVICE.MODEM: ' + str(e) + '\n')
-
-   # ------ Try to start instance, if not yet started -----------------------
-   if ((mcc == None) and (mnc == None) and (networkID == 6)):
-      # Special case: 5G modem tests
-      metadataIF = 'eth0'
-
-   if ( ( ((mcc == None) and (mnc == None)) or
-          ((metadataMCC == mcc) and (metadataMNC == mnc)) ) and
-        ( (iccid == None) or (metadataICCID == iccid)) and
-        (metadataIF != None) ):
-      if measurementID in processes:
-         if processes[measurementID].poll() != None:
-            del processes[measurementID]
-            sys.stderr.write('WARNING: Instance for measurement ID ' + measurementID + ' has stopped!\n')
-
-      if not measurementID in processes:
-         logging.debug('Starting instance ' + str(measurementID) + ' on ' + metadataIF + ' ...')
-         processes[measurementID] = subprocess.Popen([ 'hipercontracer',
-                                                       '--identifier',               str(measurementID),
-                                                       '--resultsdirectory',         '/monroe/results',
-                                                       '--resultstransactionlength', '300',
-                                                       '--iomodule',                 'UDP',
-                                                       '--jitter',
-                                                       '--jitterrecordraw',
-                                                       '--source',                   '0.0.0.0',
-                                                       '--destination',              '128.39.37.70',
-                                                       '--jitterinterval',           '60000',
-                                                       '--jitterburst',              '16',
-                                                       '--jitterpacketsize',         '64',
-                                                       # Logging for debugging purposes (should be commented out):
-                                                       '--logfile',                  '/monroe/results/hipercontracer-%Y%m%dT%H:%M:%S.log',
-                                                       '--loglevel',                 '2',
-                                                       '--logcolor',                 'off'
-                                                     ],
-                                                     env = {
-                                                        'LD_LIBRARY_PATH': '/opt/monroe'
-                                                     })
-         logging.debug('Started instance ' + str(measurementID) + ' on ' + metadataIF)
+   if not measurementID in processes:
+      logging.debug('Starting instance ' + str(measurementID) + ' for Operator ' + operator + ' ...' + ' on interface ' + operator_interface[operator]['interface'] + ' with sourceIPv4 ' + operator_interface[operator]['sourceIPv4'] + ' ...')
+      processes[measurementID] = subprocess.Popen([ 'hipercontracer',
+                                                      '--identifier',               str(measurementID),
+                                                      '--resultsdirectory',         '/monroe/results',
+                                                      '--resultstransactionlength', '300',
+                                                      '--iomodule',                 'UDP',
+                                                      '--jitter',
+                                                      '--jitterrecordraw',
+                                                      '--source',                   operator_interface[operator]['sourceIPv4'],
+                                                      '--destination',              '128.39.37.70',
+                                                      '--jitterinterval',           '60000',
+                                                      '--jitterburst',              '16',
+                                                      '--jitterpacketsize',         '64',
+                                                      # Logging for debugging purposes (should be commented out):
+                                                      '--logfile',                  '/monroe/results/hipercontracer-%Y%m%dT%H:%M:%S.log',
+                                                      '--loglevel',                 '2',
+                                                      '--logcolor',                 'off'
+                                                   ],
+                                                   env = {
+                                                      'LD_LIBRARY_PATH': '/opt/monroe'
+                                                   })
+      logging.debug('Started instance ' + str(measurementID) + ' for Operator ' + operator + ' ...' + ' on interface ' + operator_interface[operator]['interface'] + ' with sourceIPv4 ' + operator_interface[operator]['sourceIPv4'] + ' ...')
 
 
 logging.debug('Waiting for processes to finish ...')
