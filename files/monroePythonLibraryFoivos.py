@@ -32,15 +32,15 @@ def listenToMetadataBroadcasts(topic = 'MONROE.META.DEVICE.MODEM', timeout = 360
             return
 
 def getWiredInterfaceSourceIP(interfaceName="eth0"):
-    wiredDict = {"interface": "Wired", "sourceIPv4": None, "sourceIPv6": None}
+    wiredDict = {"Wired": {"interface": "Wired", "sourceIPv4": None, "sourceIPv6": None}}
     # get the IPv4 and IPv6 of the interface
     addrs = netifaces.ifaddresses(interfaceName)
     ipv4 = addrs.get(netifaces.AF_INET, [])
     if ipv4 != []:
-        wiredDict["sourceIPv4"] = ipv4[0]["addr"]
+        wiredDict["Wired"]["sourceIPv4"] = ipv4[0]["addr"]
     ipv6 = addrs.get(netifaces.AF_INET6, [])
     if ipv6 != []:
-        wiredDict["sourceIPv6"] = ipv6[0]["addr"]
+        wiredDict["Wired"]["sourceIPv6"] = ipv6[0]["addr"]
     return wiredDict
 
 def mapMobileOperatorsToInterfacesAndSourceIPs(targetOperatorList, timeout = 10):
