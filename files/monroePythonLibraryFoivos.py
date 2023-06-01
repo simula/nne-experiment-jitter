@@ -10,6 +10,31 @@ import subprocess
 import zmq
 import netifaces
 import time
+import shutil
+from pathlib import Path
+
+
+if os.path.isdir("/monroe"):
+    # monroe container instance
+    print("monroe container instance")
+    CONFIG_FILE = '/monroe/config'
+    NODEID_FILE = '/nodeid'
+    RESULTS_DIR = "/monroe/results/"
+    CURRENT_DIR = os.getcwd() + "/"
+    typeOfNode = "Monroe"
+# elif (os.uname().nodename in ["ubuntu", 'foivosLaptop.local', 'dominos']):
+else:
+    # testing
+    print("testing")
+    CONFIG_FILE = '../../supportingFiles/config'
+    RESULTS_DIR = '../../supportingFiles/testingResults/'
+    CURRENT_DIR = './'
+    typeOfNode = "testing"
+# else:
+#     print("ERROR: unable to identify the typeOfNode")
+
+
+
 
 def listenToMetadataBroadcasts(topic = 'MONROE.META.DEVICE.MODEM', timeout = 3600):
     """
@@ -97,3 +122,24 @@ def mapMobileOperatorsToInterfacesAndSourceIPs(targetOperatorList, timeout = 10)
         if ((int(time.time()) - startFunctionTime) > timeout) or (None not in [operatorDict[key]["interface"] for key in operatorDict.keys()]):
             return operatorDict
 
+def saveResultFromString(stringToSave, filename):
+    with open(CURRENT_DIR + filename, "w") as outputFile:
+        outputFile.write(stringToSave)
+    shutil.copy2(CURRENT_DIR + filename, RESULTS_DIR + filename + ".tmp")
+    shutil.move(RESULTS_DIR + filename + ".tmp", RESULTS_DIR + filename)
+    os.remove(CURRENT_DIR + filename)
+
+
+def saveResultFromFile(filename):
+    shutil.copy2(CURRENT_DIR + filename, RESULTS_DIR + filename + ".tmp")
+    shutil.move(RESULTS_DIR + filename + ".tmp", RESULTS_DIR + filename)
+    os.remove(CURRENT_DIR + filename)
+
+def saveResultFromFileGenericPath(sourcePath, removeOriginal=False):
+    source = Path(sourcePath)
+    tmpFile = RESULTS_DIR + source.name + ".tmp"
+    destinationPath = RESULTS_DIR + source.name
+    shutil.copy2(sourcePath, tmpFile)
+    shutil.move(tmpFile, destinationPath)
+    if removeOriginal:
+        os.remove(sourcePath)

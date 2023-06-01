@@ -55,6 +55,10 @@ except:
 try:
    configurationFile = open(CONFIG_FILE)
    configuration = json.load(configurationFile)
+   # also copy the configuration file and nodeid file in the results directory
+   if typeOfNode == "Monroe":
+      saveResultFromFileGenericPath(CONFIG_FILE)
+      saveResultFromFileGenericPath(NODEID_FILE)
 except:
    sys.stderr.write('Unable to read configuration from ' + CONFIG_FILE + '!\n')
    sys.exit(1)
