@@ -33,49 +33,17 @@
 # Contact: dreibh@simula.no
 # Contact: foivos@simula.no
 
+from helper import *
+import time
 
-from monroePythonLibraryFoivos import *
-
-
-NODEID_FILE = '/nodeid'
-CONFIG_FILE  = '/monroe/config'
-LOG_DIRECTORY  = '/monroe/results/log'
-
-
-# ====== Check node ID ======================================================
-try:
-   nodeIDFile = open(NODEID_FILE)
-   nodeID = int(nodeIDFile.read())
-except:
-   sys.stderr.write('Unable to read node ID from ' + NODEID_FILE + '!\n')
-   sys.exit(1)
-
-
-# ====== Read configuration file ============================================
-try:
-   configurationFile = open(CONFIG_FILE)
-   configuration = json.load(configurationFile)
-   # also copy the configuration file and nodeid file in the results directory
-   if typeOfNode == "Monroe":
-      saveResultFromFileGenericPath(CONFIG_FILE)
-      saveResultFromFileGenericPath(NODEID_FILE)
-except:
-   sys.stderr.write('Unable to read configuration from ' + CONFIG_FILE + '!\n')
-   sys.exit(1)
-
-try:
-   operator      = configuration['operator']
-   mcc           = configuration['mcc']
-   mnc           = configuration['mnc']
-   measurementID = configuration['measurement_id']
-   networkID     = configuration['network_id']
-   try:
-      iccid = configuration['iccid']
-   except:
-      iccid = None
-except Exception as e:
-   sys.stderr.write('Invalid or incomplete configuration in ' + CONFIG_FILE + ':' + str(e) + '\n')
-   sys.exit(1)
+DEFAULTCONFIGURATIONPARAMETERS = {
+"operator": "Telia",
+"mcc": "242",
+"mnc": "02",
+"measurement_id": "99000",
+"network_id": 2
+}
+REVERTTODEFAULT = False # True: if the configuration file is unreadable run the experiment with the default parameters. False: there is not point to run the experiment if we can not test our specified parameters, so we abort.
 
 # ====== Make sure the log directory exists =================================
 try:
@@ -83,7 +51,6 @@ try:
 except:
    sys.stderr.write('ERROR: Unable to create directory ' + LOG_DIRECTORY + '!\n')
    sys.exit(1)
-
 
 # ====== Initialise logger ==================================================
 LOGGING_CONF = {
@@ -109,6 +76,54 @@ LOGGING_CONF = {
 }
 logging.config.dictConfig(LOGGING_CONF)
 logging.debug('Starting')
+
+logging.debug("start of experiment\n")
+logging.debug(f"Starting at {time.time()}\n")
+
+# ====== Read the configuration file - START ==================================
+try:
+    with open(CONFIG_FILE, "r") as fd:
+        configurationParameters = json.load(fd)
+        logging.debug(str(configurationParameters) + "\n")
+        usingDefaults = False
+        saveResultFromString("False", "usingDefaults.txt")
+    saveResultFromFileGenericPath(CONFIG_FILE) # just to have the exact experiment configuration of this isntance alongside its results
+    if os.path.isfile("/nodeid"):
+        logging.debug(str("The nodeID file exists.\n"))
+        saveResultFromFileGenericPath("/nodeid")
+    else:
+        logging.debug(str("The nodeID file is missing."))
+        saveResultFromString("00000", "nodeid")
+    logging.debug(str("The configuration file was successully parsed."))
+except Exception as e:
+    logging.debug(str("Cannot retrive /monroe/config {}".format(e)))
+    if REVERTTODEFAULT:
+        logging.debug(str("Using default parameters......."))
+        configurationParameters = DEFAULTCONFIGURATIONPARAMETERS
+        usingDefaults = True
+        saveResultFromString("True", "usingDefaults.txt")
+    else:
+        logging.debug(str("we abort this experimnt......."))
+        sys.exit(1)
+# ====== Read the configuration file - STOP ==================================
+
+
+
+# we use the `get` method, to assign values, so that in case a value is missing
+# from the configurtion file, we can use its default value.
+logging.debug(str("The initial configurationParameters are:\n"))
+logging.debug(str(configurationParameters) + "\n")
+
+try:
+   operator      = configurationParameters.get("operator", DEFAULTCONFIGURATIONPARAMETERS["operator"])
+   mcc           = configurationParameters.get("mcc", DEFAULTCONFIGURATIONPARAMETERS["mcc"])
+   mnc           = configurationParameters.get("mnc", DEFAULTCONFIGURATIONPARAMETERS["mnc"])
+   measurementID = configurationParameters.get("measurement_id", DEFAULTCONFIGURATIONPARAMETERS["measurement_id"])
+   networkID     = configurationParameters.get("network_id", DEFAULTCONFIGURATIONPARAMETERS["network_id"])
+   iccid = configurationParameters.get("iccid", None)
+except Exception as e:
+   sys.stderr.write('Invalid or incomplete configuration in ' + CONFIG_FILE + ':' + str(e) + '\n')
+   sys.exit(1)
 
 if operator != "Wired":
    operator_interface = mapMobileOperatorsToInterfacesAndSourceIPs([operator])
@@ -152,6 +167,9 @@ while True:
                                                       'LD_LIBRARY_PATH': '/opt/monroe'
                                                    })
       logging.debug('Started instance ' + str(measurementID) + ' for Operator ' + operator + ' ...' + ' on interface ' + operator_interface[operator]['interface'] + ' with sourceIPv4 ' + operator_interface[operator]['sourceIPv4'] + ' ...')
+
+logging.debug(str(f"Finished at {time.time()}\n"))
+saveResultFromString(logstring, "logstring.txt")
 
 
 logging.debug('Waiting for processes to finish ...')
